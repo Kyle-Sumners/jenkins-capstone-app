@@ -1,6 +1,12 @@
 pipeline {
   agent any
 
+  environment {
+    IMAGE_REPO = "quay.io/ksumners66/jenkins-capstone"
+    IMAGE_TAG = "${BUILD_NUMBER}"
+    GIT_SHA = "${GIT_COMMIT.take(7)}"
+  }
+
   stages {
     stage("Test") {
       agent {
@@ -22,6 +28,25 @@ pipeline {
       post {
         always {
           junit 'test-results/pytest-report.xml'
+        }
+      }
+    }
+
+    stage("Docker build") {
+      steps {
+        sh "docker build -t ${IMAGE_REPO}:${IMAGE_TAG} -t ${IMAGE_REPO}:${GIT_SHA} -t ${IMAGE_REPO}:latest ."
+      }
+    }
+
+    stage("Docker push") {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'Quay-robot', passwordVariable: 'QUAY_PW', usernameVariable: 'QUAY_USER')]) {
+          sh '''
+            echo "$QUAY_PW" | docker login quay.io -u "$QUAY_USER" --password-stdin
+            docker push $IMAGE_REPO:$IMAGE_TAG
+            docker push $IMAGE_REPO:$GIT_SHA
+            docker push $IMAGE_REPO:latest
+          '''
         }
       }
     }
