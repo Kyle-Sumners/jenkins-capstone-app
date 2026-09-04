@@ -62,5 +62,18 @@ pipeline {
         '''
       }
     }
+
+    stage("Promote") {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'Quay-robot', passwordVariable: 'QUAY_PW', usernameVariable: 'QUAY_USER')]) {
+          sh '''
+            echo "$QUAY_PW" | docker login quay.io -u "$QUAY_USER" --password-stdin
+            docker tag $IMAGE_REPO:$IMAGE_TAG $IMAGE_REPO:stable
+            docker push $IMAGE_REPO:stable
+            docker logout quay.io
+          '''
+        }
+      }
+    }
   }
 }
