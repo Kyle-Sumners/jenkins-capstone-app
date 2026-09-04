@@ -1,0 +1,25 @@
+pipeline {
+  agent any
+
+  parameters {
+    string(name: 'rollbackVersion', defaultValue: 'stable', description: 'Deployment image to rollback to')
+  }
+
+  environment {
+    IMAGE_REPO = "quay.io/ksumners66/jenkins-capstone"
+    ROLLBACK_TAG = "${params.rollbackVersion}"
+  }
+
+  stages {
+    stage("Rollback") {
+      steps {
+        sh '''
+          docker pull $IMAGE_REPO:$ROLLBACK_TAG
+          docker rm -f capstone-app
+          docker run -d -p 5000:5000 --name capstone-app $IMAGE_REPO:$ROLLBACK_TAG
+          curl --retry 3 --retry-delay 2 --retry-all-errors --fail docker:5000/health
+        '''
+      }
+    }
+  }
+}
