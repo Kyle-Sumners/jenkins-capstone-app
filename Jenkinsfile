@@ -46,8 +46,20 @@ pipeline {
             docker push $IMAGE_REPO:$IMAGE_TAG
             docker push $IMAGE_REPO:$GIT_SHA
             docker push $IMAGE_REPO:latest
+            docker logout quay.io
           '''
         }
+      }
+    }
+
+    stage("Deploy") {
+      steps {
+        sh '''
+          docker pull $IMAGE_REPO:$IMAGE_TAG
+          docker rm -f capstone-app
+          docker run -d -p 5000:5000 --name capstone-app $IMAGE_REPO:$IMAGE_TAG
+          curl --retry 3 --retry-delay 2 --retry-all-errors --fail docker:5000/health
+        '''
       }
     }
   }
