@@ -1,4 +1,5 @@
 from flask import Flask, jsonify
+import os
 
 app = Flask(__name__)
 
@@ -8,7 +9,7 @@ def home():
 
 @app.route("/health", methods=['GET'])
 def get_health():
-  database_up = True
+  database_up = os.getenv("DB_STATUS", "up") == "up"
 
   health_response = {
     "status": "healthy",
