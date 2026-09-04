@@ -12,9 +12,10 @@ pipeline {
 
       steps {
         sh '''
-          pip install -r requirements-dev.txt
+          python -m venv .venv
+          .venv/bin/pip install -r requirements-dev.txt
           mkdir -p test-results
-          pytest --junitxml=test-results/pytest-report.xml
+          .venv/bin/pytest --junitxml=test-results/pytest-report.xml
         '''
       }
 
