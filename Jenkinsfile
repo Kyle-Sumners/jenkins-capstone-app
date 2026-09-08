@@ -86,10 +86,10 @@ pipeline {
       }
     }
 
-    stage("Approve promotion") {
+    stage("Approve as stable") {
       steps {
         timeout(time: 15, unit: 'MINUTES') {
-          input message: "Deploy of build ${BUILD_NUMBER} is healthy. Promote to stable?", ok: "Promote"
+          input message: "Build ${BUILD_NUMBER} is deployed and healthy. Mark it as the stable release?", ok: "Mark stable"
         }
       }
     }
@@ -116,7 +116,7 @@ pipeline {
 
 Image: ${IMAGE_REPO}:${IMAGE_TAG}
 Commit: ${GIT_SHA}
-Promoted to: stable
+Marked stable: yes
 
 Details: ${BUILD_URL}"""
     }
