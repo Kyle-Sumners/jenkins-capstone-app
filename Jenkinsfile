@@ -57,9 +57,20 @@ pipeline {
         sh '''
           docker pull $IMAGE_REPO:$IMAGE_TAG
           docker rm -f capstone-app
-          docker run -d -p 5000:5000 --name capstone-app -e VERSION=$IMAGE_TAG $IMAGE_REPO:$IMAGE_TAG
+          docker run -d -p 5000:5000 --name capstone-app -e VERSION=$IMAGE_TAG -e DB_STATUS=down $IMAGE_REPO:$IMAGE_TAG
           curl --retry 3 --retry-delay 2 --retry-all-errors --fail docker:5000/health
         '''
+      }
+
+      post {
+        failure {
+          sh '''
+            docker pull $IMAGE_REPO:stable
+            docker rm -f capstone-app
+            docker run -d -p 5000:5000 --name capstone-app -e VERSION=stable $IMAGE_REPO:stable
+            curl --retry 3 --retry-delay 2 --retry-all-errors --fail docker:5000/health
+          '''
+        }
       }
     }
 
