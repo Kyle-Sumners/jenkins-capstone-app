@@ -86,6 +86,14 @@ pipeline {
       }
     }
 
+    stage("Approve promotion") {
+      steps {
+        timeout(time: 15, unit: 'MINUTES') {
+          input message: "Deploy of build ${BUILD_NUMBER} is healthy. Promote to stable?", ok: "Promote"
+        }
+      }
+    }
+
     stage("Promote") {
       steps {
         withCredentials([usernamePassword(credentialsId: 'Quay-robot', passwordVariable: 'QUAY_PW', usernameVariable: 'QUAY_USER')]) {
@@ -119,6 +127,17 @@ Details: ${BUILD_URL}"""
 
 Commit: ${GIT_SHA}
 If the failure occurred during deployment, an automatic rollback to the last stable version was attempted.
+
+Details: ${BUILD_URL}"""
+    }
+
+    aborted {
+      emailext to: "${NOTIFY_EMAIL}",
+        subject: "ABORTED: ${JOB_NAME} #${BUILD_NUMBER}",
+        body: """Build ${BUILD_NUMBER} was aborted.
+
+Commit: ${GIT_SHA}
+Build ${BUILD_NUMBER} deployed successfully but was not promoted to stable — the approval either timed out or was declined.
 
 Details: ${BUILD_URL}"""
     }
