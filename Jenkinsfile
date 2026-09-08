@@ -64,12 +64,23 @@ pipeline {
 
       post {
         failure {
-          sh '''
-            docker pull $IMAGE_REPO:stable
-            docker rm -f capstone-app
-            docker run -d -p 5000:5000 --name capstone-app -e VERSION=stable $IMAGE_REPO:stable
-            curl --retry 3 --retry-delay 2 --retry-all-errors --fail docker:5000/health
-          '''
+          script {
+            sh 'docker pull $IMAGE_REPO:stable'
+            def tags = sh(
+              script: "docker image inspect --format '{{join .RepoTags \",\"}}' ${IMAGE_REPO}:stable",
+              returnStdout: true
+            ).trim()
+
+            def stableVersion = tags.split(',')
+              .collect { it.tokenize(':').last() }
+              .find { it ==~ /\d+/ } ?: 'stable'
+              
+            sh """
+              docker rm -f capstone-app
+              docker run -d -p 5000:5000 --name capstone-app -e VERSION=${stableVersion} ${IMAGE_REPO}:stable
+              curl --retry 3 --retry-delay 2 --retry-all-errors --fail docker:5000/health
+            """
+          }
         }
       }
     }
