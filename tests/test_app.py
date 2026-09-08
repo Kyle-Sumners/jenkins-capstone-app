@@ -21,3 +21,13 @@ def test_health_unhealthy(client, monkeypatch):
   response = client.get("/health")
   assert response.status_code == 503
   assert response.get_json()["status"] == "unhealthy"
+
+def test_health_version(client, monkeypatch):
+  monkeypatch.setenv("VERSION", "9.9.9-test")
+  response = client.get("/health")
+  assert response.get_json()["version"] == "9.9.9-test"
+
+def test_health_version_default(client, monkeypatch):
+  monkeypatch.delenv("VERSION", raising=False)
+  response = client.get("/health")
+  assert response.get_json()["version"] == "0.0.0"

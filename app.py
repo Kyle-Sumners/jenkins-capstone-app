@@ -5,14 +5,16 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-  return "<h1>Hello, World!</h1>"
+  return f"<h1>Hello, World!</h1><br><h2>Version: {os.getenv('VERSION', '0.0.0')}"
 
 @app.route("/health", methods=['GET'])
 def get_health():
   database_up = os.getenv("DB_STATUS", "up") == "up"
+  version = os.getenv("VERSION", '0.0.0')
 
   health_response = {
     "status": "healthy",
+    "version": version,
     "checks": {
       "database": "up"
     }
