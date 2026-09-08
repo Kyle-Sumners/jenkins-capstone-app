@@ -5,6 +5,7 @@ pipeline {
     IMAGE_REPO = "quay.io/ksumners66/jenkins-capstone"
     IMAGE_TAG = "${BUILD_NUMBER}"
     GIT_SHA = "${GIT_COMMIT.take(7)}"
+    NOTIFY_EMAIL = "ksumners@515tech.com"
   }
 
   stages {
@@ -96,6 +97,30 @@ pipeline {
           '''
         }
       }
+    }
+  }
+
+  post {
+    success {
+      emailext to: "${NOTIFY_EMAIL}",
+        subject: "SUCCESS: ${JOB_NAME} #${BUILD_NUMBER} deployed",
+        body: """Build ${BUILD_NUMBER} passed all stages and is deployed.
+
+Image: ${IMAGE_REPO}:${IMAGE_TAG}
+Commit: ${GIT_SHA}
+Promoted to: stable
+
+Details: ${BUILD_URL}"""
+    }
+    failure {
+      emailext to: "${NOTIFY_EMAIL}",
+        subject: "FAILED: ${JOB_NAME} #${BUILD_NUMBER}",
+        body: """Build ${BUILD_NUMBER} failed.
+
+Commit: ${GIT_SHA}
+If the failure occurred during deployment, an automatic rollback to the last stable version was attempted.
+
+Details: ${BUILD_URL}"""
     }
   }
 }
