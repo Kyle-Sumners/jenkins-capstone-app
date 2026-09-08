@@ -3,7 +3,7 @@ pipeline {
 
   environment {
     IMAGE_REPO = "quay.io/ksumners66/jenkins-capstone"
-    IMAGE_TAG = "${BUILD_NUMBER}"
+    IMAGE_TAG = "${BRANCH_NAME}-${BUILD_NUMBER}"
     GIT_SHA = "${GIT_COMMIT.take(7)}"
     NOTIFY_EMAIL = "ksumners@515tech.com"
   }
@@ -77,7 +77,7 @@ pipeline {
 
             def stableVersion = tags.split(',')
               .collect { it.tokenize(':').last() }
-              .find { it ==~ /\d+/ } ?: 'stable'
+              .find { it ==~ /main-\d+/ } ?: 'stable'
               
             sh """
               docker rm -f capstone-app

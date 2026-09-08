@@ -23,7 +23,7 @@ pipeline {
 
           def resolvedVersion = tags.split(',')
             .collect { it.tokenize(':').last() }
-            .find { it ==~ /\d+/ } ?: params.rollbackVersion
+            .find { it ==~ /main-\d+/ } ?: params.rollbackVersion
 
           sh """ 
             docker rm -f capstone-app
