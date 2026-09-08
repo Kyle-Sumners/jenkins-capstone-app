@@ -34,12 +34,14 @@ pipeline {
     }
 
     stage("Docker build") {
+      when { branch 'main' }
       steps {
         sh "docker build -t ${IMAGE_REPO}:${IMAGE_TAG} -t ${IMAGE_REPO}:${GIT_SHA} -t ${IMAGE_REPO}:latest ."
       }
     }
 
     stage("Docker push") {
+      when { branch 'main' }
       steps {
         withCredentials([usernamePassword(credentialsId: 'Quay-robot', passwordVariable: 'QUAY_PW', usernameVariable: 'QUAY_USER')]) {
           sh '''
@@ -54,6 +56,7 @@ pipeline {
     }
 
     stage("Deploy") {
+      when { branch 'main' }
       steps {
         sh '''
           docker pull $IMAGE_REPO:$IMAGE_TAG
@@ -87,6 +90,7 @@ pipeline {
     }
 
     stage("Approve as stable") {
+      when { branch 'main' }
       steps {
         timeout(time: 15, unit: 'MINUTES') {
           input message: "Build ${BUILD_NUMBER} is deployed and healthy. Mark it as the stable release?", ok: "Mark stable"
@@ -95,6 +99,7 @@ pipeline {
     }
 
     stage("Promote") {
+      when { branch 'main' }
       steps {
         withCredentials([usernamePassword(credentialsId: 'Quay-robot', passwordVariable: 'QUAY_PW', usernameVariable: 'QUAY_USER')]) {
           sh '''
