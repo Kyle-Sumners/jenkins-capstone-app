@@ -1,0 +1,28 @@
+pipeline {
+  agent any
+
+  parameters {
+    string(name: 'stableVersion', defaultValue: '', description: 'Image tag to designate as the stable release')
+  }
+
+  environment {
+    IMAGE_REPO = "quay.io/ksumners66/jenkins-capstone"
+    STABLE_TAG = "${params.stableVersion}"
+  }
+
+  stages {
+    stage("Mark stable") {
+      steps {
+         withCredentials([usernamePassword(credentialsId: 'Quay-robot', passwordVariable: 'QUAY_PW', usernameVariable: 'QUAY_USER')]) {
+          sh '''
+            docker pull $IMAGE_REPO:$STABLE_TAG
+            echo "$QUAY_PW" | docker login quay.io -u "$QUAY_USER" --password-stdin
+            docker tag $IMAGE_REPO:$STABLE_TAG $IMAGE_REPO:stable
+            docker push $IMAGE_REPO:stable
+            docker logout quay.io
+          '''
+        }
+      }
+    }
+  }
+}
