@@ -5,7 +5,7 @@ pipeline {
     IMAGE_REPO = "quay.io/ksumners66/jenkins-capstone"
     IMAGE_TAG = "${BRANCH_NAME}-${BUILD_NUMBER}"
     GIT_SHA = "${GIT_COMMIT.take(7)}"
-    NOTIFY_EMAIL = "ksumners@515tech.com"
+    NOTIFY_EMAIL = credentials('notify-email')
   }
 
   stages {
