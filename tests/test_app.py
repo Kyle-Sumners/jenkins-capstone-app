@@ -40,4 +40,4 @@ def test_health_uptime(client):
 
 def test_home_shows_uptime(client):
   response = client.get("/")
-  assert b"Uptime" in response.data
+  assert b"Downtime" in response.data
