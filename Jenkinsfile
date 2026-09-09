@@ -115,7 +115,7 @@ pipeline {
 
   post {
     success {
-      emailext to: "${NOTIFY_EMAIL}",
+      emailext to: NOTIFY_EMAIL,
         subject: "SUCCESS: ${JOB_NAME} #${BUILD_NUMBER} deployed",
         body: """Build ${BUILD_NUMBER} passed all stages and is deployed.
 
@@ -126,7 +126,7 @@ Marked stable: yes
 Details: ${BUILD_URL}"""
     }
     failure {
-      emailext to: "${NOTIFY_EMAIL}",
+      emailext to: NOTIFY_EMAIL,
         subject: "FAILED: ${JOB_NAME} #${BUILD_NUMBER}",
         body: """Build ${BUILD_NUMBER} failed.
 
@@ -137,7 +137,7 @@ Details: ${BUILD_URL}"""
     }
 
     aborted {
-      emailext to: "${NOTIFY_EMAIL}",
+      emailext to: NOTIFY_EMAIL,
         subject: "ABORTED: ${JOB_NAME} #${BUILD_NUMBER}",
         body: """Build ${BUILD_NUMBER} was aborted.
 

@@ -1,13 +1,29 @@
 from flask import Flask, jsonify
 import os
+import time
 
 app = Flask(__name__)
+
+STARTED_AT = time.time()
 
 def current_version():
     return os.getenv("VERSION", "0.0.0")
 
 def database_up():
     return os.getenv("DB_STATUS", "up") == "up"
+
+def uptime_seconds():
+  return int(time.time() - STARTED_AT)
+
+def uptime_display():
+    total = uptime_seconds()
+    hours, rem = divmod(total, 3600)
+    minutes, seconds = divmod(rem, 60)
+    if hours:
+        return f"{hours}h {minutes}m {seconds}s"
+    if minutes:
+        return f"{minutes}m {seconds}s"
+    return f"{seconds}s"
 
 @app.route("/")
 def home():
@@ -34,6 +50,7 @@ def home():
       h1 {{ margin: 0 0 1.5rem; color: #0f3a5f; }}
       .version {{ font-size: 3rem; font-weight: 700; color: #0f3a5f; }}
       .label {{ color: #6b7c86; letter-spacing: .08em; font-size: .8rem; }}
+      .uptime {{ margin-top: 1rem; }}
       .status {{
         margin-top: 1.5rem; padding: .5rem 1.5rem; border-radius: 999px;
         display: inline-block; color: #fff; background: {color};
@@ -44,6 +61,7 @@ def home():
       <div class="label">VERSION:</div> 
       <div class="version">{current_version()}</div>
       <div class="status">Status: {status}</div>
+      <div class="label uptime">Uptime: {uptime_display()}</div>
     </div>
   """
 
@@ -51,10 +69,12 @@ def home():
 def get_health():
   database_status = database_up()
   version = current_version()
+  uptime = uptime_seconds()
   
   health_response = {
     "status": "healthy",
     "version": version,
+    "uptime": uptime,
     "checks": {
       "database": "up"
     }
