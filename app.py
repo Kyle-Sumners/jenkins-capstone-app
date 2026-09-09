@@ -22,6 +22,7 @@ def home():
         display: flex;
         justify-content: center;
         padding-top: 8vh;
+        align-items: flex-start;
       }}
       .card {{
         background: #fff;
