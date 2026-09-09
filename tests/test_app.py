@@ -31,3 +31,13 @@ def test_health_version_default(client, monkeypatch):
   monkeypatch.delenv("VERSION", raising=False)
   response = client.get("/health")
   assert response.get_json()["version"] == "0.0.0"
+
+def test_health_uptime(client):
+  response = client.get("/health")
+  uptime = response.get_json()["uptime"]
+  assert isinstance(uptime, int)
+  assert uptime >= 0
+
+def test_home_shows_uptime(client):
+  response = client.get("/")
+  assert b"Uptime" in response.data
