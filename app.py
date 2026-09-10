@@ -57,7 +57,7 @@ def home():
       }}
     </style>
     <div class="card">
-      <h1>Capstone Application</h1>
+      <h1>Capstone Application - Demo</h1>
       <div class="label">VERSION:</div> 
       <div class="version">{current_version()}</div>
       <div class="status">Status: {status}</div>
