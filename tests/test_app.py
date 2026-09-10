@@ -14,7 +14,7 @@ def test_health_healthy(client, monkeypatch):
   monkeypatch.setenv("DB_STATUS", "up")
   response = client.get("/health")
   assert response.status_code == 200
-  assert response.get_json()["status"] == "unhealthy"
+  assert response.get_json()["status"] == "healthy"
 
 def test_health_unhealthy(client, monkeypatch):
   monkeypatch.setenv("DB_STATUS", "down")
